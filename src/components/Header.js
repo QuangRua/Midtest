@@ -7,7 +7,7 @@ import { COLORS, SPACING, RADIUS, SHADOWS } from '../constants/theme';
 import { MSSV } from '../constants/config';
 
 export const Header = ({ navigation, title, showBack = false, rightAction }) => {
-  const { locale, toggleLanguage, t } = useLanguage();
+  const { locale, setLocale, t } = useLanguage();
   const { isOnline, isSyncing, pendingSyncCount } = useNetwork();
 
   return (
@@ -53,16 +53,28 @@ export const Header = ({ navigation, title, showBack = false, rightAction }) => 
             </Text>
           </View>
 
-          {/* Language Toggle Button */}
-          <TouchableOpacity
-            style={styles.langButton}
-            onPress={toggleLanguage}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.langText}>
-              {locale === 'en' ? '🇻🇳 VI' : '🇬🇧 EN'}
-            </Text>
-          </TouchableOpacity>
+          {/* Segmented Language Selector (EN | VI) */}
+          <View style={styles.langSegmentGroup}>
+            <TouchableOpacity
+              style={[styles.langSegmentBtn, locale === 'en' && styles.langSegmentActive]}
+              onPress={() => setLocale('en')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.langSegmentText, locale === 'en' && styles.langSegmentTextActive]}>
+                EN
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.langSegmentBtn, locale === 'vi' && styles.langSegmentActive]}
+              onPress={() => setLocale('vi')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.langSegmentText, locale === 'vi' && styles.langSegmentTextActive]}>
+                VI
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -157,18 +169,29 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text,
   },
-  langButton: {
+  langSegmentGroup: {
+    flexDirection: 'row',
     backgroundColor: COLORS.background,
+    borderRadius: RADIUS.sm,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    borderRadius: RADIUS.sm,
+    padding: 2,
   },
-  langText: {
-    fontSize: 12,
+  langSegmentBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: RADIUS.sm - 2,
+  },
+  langSegmentActive: {
+    backgroundColor: COLORS.primary,
+  },
+  langSegmentText: {
+    fontSize: 11,
     fontWeight: '700',
-    color: COLORS.text,
+    color: COLORS.textSecondary,
+  },
+  langSegmentTextActive: {
+    color: COLORS.white,
   },
   mainRow: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -39,10 +39,11 @@ export const DishFormScreen = ({ route, navigation }) => {
   // Validation error messages
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const initializedRef = useRef(false);
 
   // Pre-fill form if editing
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && !initializedRef.current) {
       const existing = dishes.find((d) => String(d[`${MSSV}_Id`]) === String(dishId));
       if (existing) {
         setName(existing[`${MSSV}_Name`] || '');
@@ -55,12 +56,13 @@ export const DishFormScreen = ({ route, navigation }) => {
           ? existing[`${MSSV}_DishImage`]
           : [];
         setImages(existingImgs);
+        initializedRef.current = true;
       }
-    } else if (categories.length > 0 && !categoryId) {
+    } else if (!isEditing && categories.length > 0 && !categoryId) {
       // Default to first category if creating
       setCategoryId(String(categories[0][`${MSSV}_Id`]));
     }
-  }, [isEditing, dishId, dishes, categories]);
+  }, [isEditing, dishId, dishes, categories, categoryId]);
 
   // Image Management (Requirement 4.3)
   const handleAddImage = () => {

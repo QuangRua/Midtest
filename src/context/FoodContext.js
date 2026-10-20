@@ -90,7 +90,7 @@ export const FoodProvider = ({ children }) => {
 
   useEffect(() => {
     loadInitialData();
-  }, [loadInitialData]);
+  }, []);
 
   // Persist filter conditions whenever they change (Requirement 4.2)
   useEffect(() => {

@@ -12,21 +12,28 @@ export const NetworkProvider = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
   const [lastSyncTime, setLastSyncTime] = useState(null);
-  const isInitialMount = useRef(true);
+
+  const isSyncingRef = useRef(false);
+  const prevEffectiveOnlineRef = useRef(null);
 
   // Effective online state: real connectivity AND not simulated offline
   const isOnline = realIsConnected && !simulateOffline;
 
   // Update pending queue count
   const refreshPendingCount = useCallback(async () => {
-    const queue = await storageService.getSyncQueue();
-    setPendingSyncCount(queue.length);
+    try {
+      const queue = await storageService.getSyncQueue();
+      setPendingSyncCount(queue.length);
+    } catch (e) {
+      console.warn('refreshPendingCount error:', e);
+    }
   }, []);
 
-  // Sync execution
+  // Sync execution - guaranteed single execution without trigger loops
   const runAutoSync = useCallback(async () => {
-    if (!isOnline || isSyncing) return;
+    if (!isOnline || isSyncingRef.current) return;
     try {
+      isSyncingRef.current = true;
       setIsSyncing(true);
       const result = await syncService.processSyncQueue();
       if (result.success && result.count > 0) {
@@ -35,10 +42,11 @@ export const NetworkProvider = ({ children }) => {
     } catch (e) {
       console.warn('Auto sync execution error:', e);
     } finally {
+      isSyncingRef.current = false;
       setIsSyncing(false);
       refreshPendingCount();
     }
-  }, [isOnline, isSyncing, refreshPendingCount]);
+  }, [isOnline, refreshPendingCount]);
 
   // Load initial offline simulation preference
   useEffect(() => {
@@ -49,7 +57,7 @@ export const NetworkProvider = ({ children }) => {
     })();
   }, [refreshPendingCount]);
 
-  // Listen to NetInfo
+  // Listen to real network changes
   useEffect(() => {
     let unsubscribe = () => {};
     if (Platform.OS === 'web') {
@@ -66,27 +74,30 @@ export const NetworkProvider = ({ children }) => {
       }
     } else {
       unsubscribe = NetInfo.addEventListener((state) => {
-        setRealIsConnected(state.isConnected ?? true);
+        setRealIsConnected(Boolean(state.isConnected));
       });
     }
     return () => unsubscribe();
   }, []);
 
-  // When connection transitions to ONLINE -> auto trigger sync
+  // Trigger sync strictly on transition from offline -> online (or once on mount if online)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      // On app startup, if online, attempt auto sync
+    if (prevEffectiveOnlineRef.current === null) {
+      // First mount
+      prevEffectiveOnlineRef.current = isOnline;
       if (isOnline) {
         runAutoSync();
       }
       return;
     }
 
-    if (isOnline) {
-      console.log('Network is ONLINE -> Triggering automatic sync with MockAPI');
+    // Only if transitioned from offline (false) to online (true)
+    if (prevEffectiveOnlineRef.current === false && isOnline === true) {
+      console.log('Network transitioned to ONLINE -> Running auto sync');
       runAutoSync();
     }
+
+    prevEffectiveOnlineRef.current = isOnline;
   }, [isOnline, runAutoSync]);
 
   const toggleSimulateOffline = async (forceVal) => {

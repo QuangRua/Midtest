@@ -13,9 +13,8 @@ export const STORAGE_KEYS = {
   FILTER_STATE: `@${MSSV}_FilterState`,
 };
 
-// Default MockAPI Base URL (Can be changed in app settings)
-// Pointing to MockAPI endpoint for BIT240031
-export const DEFAULT_MOCKAPI_URL = 'https://6759c5d1099e3090dbe28ef4.mockapi.io/api/v1';
+// MockAPI Base URL provided by student BIT240031
+export const DEFAULT_MOCKAPI_URL = 'https://6ad7470795e98f36aef23112.mockapi.io/api/v1';
 
 // Tables / Endpoints
 export const TABLE_NAMES = {

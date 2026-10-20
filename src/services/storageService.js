@@ -87,6 +87,10 @@ export const storageService = {
   async getMockApiUrl() {
     try {
       const url = await AsyncStorage.getItem(STORAGE_KEYS.MOCKAPI_URL);
+      if (!url || url.includes('6759c5d1099e3090dbe28ef4')) {
+        await this.saveMockApiUrl(DEFAULT_MOCKAPI_URL);
+        return DEFAULT_MOCKAPI_URL;
+      }
       return url || DEFAULT_MOCKAPI_URL;
     } catch (error) {
       return DEFAULT_MOCKAPI_URL;

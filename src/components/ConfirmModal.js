@@ -16,6 +16,10 @@ export const ConfirmModal = ({
 }) => {
   const { t } = useLanguage();
 
+  if (!visible) {
+    return null;
+  }
+
   return (
     <Modal
       transparent
