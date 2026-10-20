@@ -8,11 +8,10 @@
 
 ## 1. Hướng Dẫn Cài Đặt & Khởi Chạy Nhanh
 
-Thư mục dự án: `C:\Users\Admin\.gemini\antigravity\scratch\BIT240031_FoodManager`
 
 ### Bước 1: Mở thư mục dự án
 ```bash
-cd C:\Users\Admin\.gemini\antigravity\scratch\BIT240031_FoodManager
+Git clone https://github.com/QuangRua/Midtest.git
 ```
 
 ### Bước 2: Chạy ứng dụng
